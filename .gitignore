@@ -1,0 +1,16 @@
+.git/*
+.idea/*
+/node_modules/*
+
+**/migrations/*
+!**/migrations/__init__.py
+/static/*
+/media/*
+
+**/__pycache__/*
+*.pyc
+*.sqlite3
+gulpfile.js
+*/gulpfile.js
+
+yadirect_api/local.py
