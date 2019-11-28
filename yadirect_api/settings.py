@@ -74,6 +74,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'yadirect_api.wsgi.application'
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATICFILES_DIRS = [
+    'yadirect_api/static'
+]
+
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
