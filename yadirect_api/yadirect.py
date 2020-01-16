@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 import requests
 from requests.exceptions import ConnectionError
 from time import sleep
@@ -7,7 +8,7 @@ import json
 #  Method for correctly parsing UTF-8 encoded strings for both Python 3 and Python 2
 import sys
 
-from yadirect_api.models import ApiData
+# from yadirect_api.models import ApiData
 
 
 def response_data(token):
@@ -26,14 +27,14 @@ def response_data(token):
 
     # --- Input data ---
     #  Address of the Reports service for sending JSON requests (case-sensitive)
-    ReportsURL = 'https://api-sandbox.direct.yandex.com/json/v5/reports'
+    ReportsURL = settings.REPORTS_URL
 
     # OAuth token of the user that requests will be made on behalf of
     token = token
 
     # Login of the advertising agency client
     # Required parameter if requests are made on behalf of an advertising agency
-    # clientLogin = login
+    clientLogin = settings.AGENCY_LOGIN
 
     # --- Preparing the request ---
     #  Creating HTTP request headers
@@ -41,7 +42,7 @@ def response_data(token):
                # OAuth token. The word Bearer must be used
                "Authorization": "Bearer " + token,
                # Login of the advertising agency client
-               # "Client-Login": clientLogin,
+               "Client-Login": clientLogin,
                # Language for response messages
                # "Accept-Language": "en",
                # Mode for report generation
