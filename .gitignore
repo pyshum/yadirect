@@ -14,3 +14,5 @@ gulpfile.js
 */gulpfile.js
 
 yadirect_api/local.py
+
+/google_adwords/gac.json
