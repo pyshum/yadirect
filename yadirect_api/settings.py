@@ -39,8 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # 'rest_framework',
+    'googleads',
 
     'yadirect_api',
+    'google_adwords',
 ]
 
 MIDDLEWARE = [
@@ -139,8 +141,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-STATIC_URL = '/static/'
-
+GOOGLE_ADS_URL = '/google_adwords/'
 
 try:
     from .local import *
