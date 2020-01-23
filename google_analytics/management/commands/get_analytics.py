@@ -14,9 +14,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
-            db_list = []
             response = export_response()
-            # print('+++++++++ response ++++++++++', response)
 
             for report in response.get('reports', []):
                 column_header = report.get('columnHeader', {})
@@ -45,8 +43,6 @@ class Command(BaseCommand):
                         adCost=db_dict.get('ga:adCost'),
                         impressions=db_dict.get('ga:impressions')
                     )
-                    # db_list.append(db_dict)
-            # print('db_list: ', db_list)
 
         except Exception as e:
             print(e)

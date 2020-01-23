@@ -17,5 +17,5 @@ class APIData(models.Model):
     objects = models.DjongoManager()
 
     def __str__(self):
-        return str(self.campaign)
+        return str(self.id)
 
