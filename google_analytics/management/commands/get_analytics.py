@@ -30,11 +30,11 @@ class Command(BaseCommand):
                     db_dict.update(dict(zip(dimension_headers, dimensions)))
 
                     db_dict.update(dict(zip([mh.get('name') for mh in metric_headers], date_range_values[0].get('values'))))
-                    data_str = db_dict.get('ga:date')
+                    date_str = db_dict.get('ga:date')
 
                     api_data = APIData.objects.create(
                         campaign=db_dict.get('ga:campaign'),
-                        date=f'{data_str[0:4]}-{data_str[4:6]}-{data_str[6:8]}',
+                        date=f'{date_str[0:4]}-{date_str[4:6]}-{date_str[6:8]}',
                         medium=db_dict.get('ga:medium'),
                         source=db_dict.get('ga:source'),
                         sessions=db_dict.get('ga:sessions'),

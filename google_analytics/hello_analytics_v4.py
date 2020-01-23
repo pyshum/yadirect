@@ -2,11 +2,12 @@
 
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
+from pathlib import Path
 
 from .models import APIData
 
 scopes = ['https://www.googleapis.com/auth/analytics.readonly', ]
-filename = '/home/m108/api-project-439269810364-f71647adb3a0.p12'
+filename = f'{str(Path.home())}/api-project-439269810364-f71647adb3a0.p12'
 VIEW_ID = '184110713'
 
 
