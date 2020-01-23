@@ -14,14 +14,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
+            db_list = []
             response = export_response()
+            # print('+++++++++ response ++++++++++', response)
 
             for report in response.get('reports', []):
-                column_header = report.get('column_header', {})
+                column_header = report.get('columnHeader', {})
                 dimension_headers = column_header.get('dimensions', [])
                 metric_headers = column_header.get('metricHeader', {}).get('metricHeaderEntries', [])
 
                 for row in report.get('data', {}).get('rows', []):
+
                     dimensions = row.get('dimensions', [])
                     date_range_values = row.get('metrics', [])
                     db_dict = {}
@@ -29,10 +32,11 @@ class Command(BaseCommand):
                     db_dict.update(dict(zip(dimension_headers, dimensions)))
 
                     db_dict.update(dict(zip([mh.get('name') for mh in metric_headers], date_range_values[0].get('values'))))
+                    data_str = db_dict.get('ga:date')
 
                     api_data = APIData.objects.create(
                         campaign=db_dict.get('ga:campaign'),
-                        date=db_dict.get('ga:date'),
+                        date=f'{data_str[0:4]}-{data_str[4:6]}-{data_str[6:8]}',
                         medium=db_dict.get('ga:medium'),
                         source=db_dict.get('ga:source'),
                         sessions=db_dict.get('ga:sessions'),
@@ -41,6 +45,8 @@ class Command(BaseCommand):
                         adCost=db_dict.get('ga:adCost'),
                         impressions=db_dict.get('ga:impressions')
                     )
+                    # db_list.append(db_dict)
+            # print('db_list: ', db_list)
 
         except Exception as e:
             print(e)
