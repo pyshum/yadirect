@@ -3,7 +3,7 @@ from djongo import models
 from yadirect_api.models_base import BaseModel
 
 
-class CallTouchResponse(models.Model):
+class APIData(models.Model):
     date = models.TextField()
     callUrl = models.TextField()
     uniqueCall = models.TextField()

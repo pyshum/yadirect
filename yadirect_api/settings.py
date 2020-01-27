@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'yadirect_api',
     'google_adwords',
     'google_analytics',
+    'comagic',
+    'calltouch',
 ]
 
 MIDDLEWARE = [
