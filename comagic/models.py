@@ -1,10 +1,11 @@
 from djongo import models
+from yadirect_api.models_base import BaseModel
 
 # Create your models here.
 
 
-class APIData(models.Model):
-    date = models.TextField()
+class APIData(BaseModel):
+    date = models.DateTimeField()
     callerNumber = models.TextField()
     callTags = models.TextField()
     source = models.TextField()

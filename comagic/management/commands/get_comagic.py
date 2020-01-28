@@ -4,6 +4,8 @@ from datetime import datetime, date, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db.models import Q
+from django.utils import timezone
 
 from comagic.models import APIData
 
@@ -19,14 +21,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         try:
+            # Вычисляем начало текущей недели - week_start. В понедельник началом считается прошлый понедельник.
             current_weekday = date.today().weekday()
             week_start = date.today() - timedelta(
-                days=(current_weekday+7 if current_weekday == 0 else current_weekday)
+                days=(current_weekday + 7 if current_weekday == 0 else current_weekday)
             )
-            # else:
-            #     week_start = date.today() - timedelta(days=datetime.today().weekday())
-            yesterday = date.today() - timedelta(days=14)
-            dby = yesterday - timedelta(days=1)
 
             payload = {
                 "jsonrpc": "2.0",
@@ -65,15 +64,20 @@ class Command(BaseCommand):
 
             if sites:
                 cnt_created = 0
-                cnt_total = 0
+                cnt_updated = 0
 
                 for d in sites.get('result', {}).get('data', []):
-                    data_obj, created = APIData.objects.get_or_create(
-                        date=d.get('start_time'),
-                        callerNumber=d.get('contact_phone_number')
+                    filter_dict = {
+                        'date': timezone.get_current_timezone().localize(
+                            datetime.strptime(d.get('start_time'), '%Y-%m-%d %H:%M:%S')
+                        ),
+                        'callerNumber': d.get('contact_phone_number')
+                    }
+                    data_obj = APIData.objects.filter(
+                        date__gte=week_start - timedelta(days=7),  # Выбираем в базе даты за текущую + прошедшую неделю
+                        **filter_dict
                     )
-                    if created:
-                        cnt_created += 1
+
                     data_dict = {
                         'callTags': f'{d.get("tags")}',
                         'source': d.get('utm_source'),
@@ -87,12 +91,29 @@ class Command(BaseCommand):
                         'communication_type': '',
                     }
 
-                    for k, v in data_dict.items():
-                        setattr(data_obj, k, v)
-                        data_obj.save()
-                        cnt_total += 1
+                    if len(data_obj) != 0:
+                        obj = data_obj.first()
+                        data_dict.update({
+                            'updated_at': timezone.get_current_timezone().localize(
+                                datetime.now()
+                            )
+                        })
+                        # print('data obj', obj.date, obj.callerNumber)
+                        APIData.objects.filter(id=obj.id).update(**data_dict)
+                        cnt_updated += 1
 
-                print(f'Created: {cnt_created};\n Updated: {cnt_total - cnt_created};\n Total: {cnt_total}')
+                        if cnt_updated % 10 == 0:
+                            print('so far updated: ', cnt_updated)
+
+                    else:
+                        data_dict.update(filter_dict)
+                        APIData.objects.create(**data_dict)
+                        cnt_created += 1
+
+                        if cnt_created % 10 == 0:
+                            print('so far created: ', cnt_created)
+
+                print(f'Created: {cnt_created};\n Updated: {cnt_updated};\n Total: {cnt_updated + cnt_created}')
 
         except Exception as e:
             print(e)

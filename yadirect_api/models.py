@@ -20,7 +20,7 @@ class Blog(models.Model):
         abstract = True
 
 
-class Entry(models.Model):
+class APIData(BaseModel):
     # blog = models.EmbeddedField(
     #     model_container=Blog
     # )
