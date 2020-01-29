@@ -21,23 +21,26 @@ except ImportError:
 
 class CalltouchApi:
 
-	def __init__(self, siteId, token, filtering = False):
+	def __init__(self, siteId, clientApiId, filtering = False):
 
 		self.siteId = siteId
-		self.token = token
+		self.clientApiId = clientApiId
 		if filtering:
 			self.filters = filtering
 		else:
 			self.filters = []
 		node_detect = requests.get('https://api.calltouch.ru/calls-service/RestAPI/{0!s}/getnodeid/'.format(siteId))
-		if node_detect.status_code == 200:
-			node = json.loads(node_detect.text)
-			self.node = 'https://api-node{0!s}.calltouch.ru/'.format(node['nodeId'])
-		else:
-			self.node = 'http://api.calltouch.ru/'
+		# if node_detect.status_code == 200:
+		# 	node = json.loads(node_detect.text)
+		# 	self.node = 'https://api-node{0!s}.calltouch.ru/'.format(node['nodeId'])
+		# else:
+		# 	self.node = 'http://api.calltouch.ru/'
+		self.node = 'http://api.calltouch.ru/'
 		self.url = self.node + 'calls-service/'
-
-	def captureCalls(self, date, attribution = 1, targetOnly = False, uniqueOnly = False, uniqTargetOnly = False, callbackOnly = False, raw = False, debug = False, untilEnd = False):
+		# print('url: ', self.url)
+		'http://api-node3.calltouch.ru/calls-service/RestAPI/10491/calls-diary/calls?clientApiId=OcyZ6ya1qiNYkAoJ.ufb9%2Fe6itsFmW3.l0L4Hb0BIBkd0&dateFrom=20%2F01%2F2020&dateTo=28%2F01%2F2020&withCallTags=true&page=1&limit=1000'
+	def captureCalls(self, date, attribution=1, targetOnly=False, uniqueOnly = False, uniqTargetOnly = False,
+			callbackOnly = False, raw=False, debug=False, untilEnd = False):
 
 		""" Получение статистики по звонкам за один день в разрезе источника и кампании трафика с учетом типа звонка """
 
@@ -45,7 +48,7 @@ class CalltouchApi:
 		if len(self.filters) > 0:
 			for f in self.filters:
 				query = {
-					'clientApiId': self.token,
+					'clientApiId': self.clientApiId,
 					'dateFrom': date,
 					'dateTo': date,
 					'attribution': attribution
@@ -87,7 +90,7 @@ class CalltouchApi:
 					print('Server Responded With Status Code: ' + str(req.status_code))
 		else:
 			query = {
-				'clientApiId': self.token,
+				'clientApiId': self.clientApiId,
 				'dateFrom': date,
 				'dateTo': date,
 				'attribution': attribution
@@ -138,7 +141,7 @@ class CalltouchApi:
 		""" Скачивание записи звонка по его идентификатору """
 
 		query = {
-			'clientApiId': self.token
+			'clientApiId': self.clientApiId
 		}
 		query = urlencode(query)
 		req = requests.get(self.node + '/calls-service/RestAPI/' + str(self.siteId) + '/calls-diary/calls/' + str(callId) + '/download?' + query, stream=True)
@@ -150,23 +153,25 @@ class CalltouchApi:
 		else:
 			return {'status': False, 'message': 'Server Responded With Status Code: ' + str(req.status_code)}
 
-	def captureStats(self, dateStart, dateEnd, type = 'callsTotal'):
+	def captureStats(self, dateStart, dateEnd, type='callsTotal', page=1):
 
 		""" Получение статистики для кабинета по предусмотренным в API срезам """
 
+		page = page
 		query = {
-			'access_token': self.token,
+			'clientApiId': self.clientApiId,
 			'dateFrom': dateStart,
 			'dateTo': dateEnd
 		}
 		query = urlencode(query)
 		req_chain = {
 			'callsTotal': '/calls/total-count?',
-			'callsByDate': '/calls/count-by-date?',
+			'callsByDate': '/calls-diary/calls?',
 			'callsByDateSeoOnly': '/calls/seo/count-by-date?',
 			'callsByKeywords': '/calls/seo/count-by-keywords?'
 		}.get(type, '/calls/total-count?')
-		req = requests.get(self.url + 'RestAPI/statistics/' + str(self.siteId) + req_chain + query)
+		req = requests.get(self.url + 'RestAPI/' + str(self.siteId) + req_chain + query + f'&withCallTags=true&page={page}&limit=1000')
+		# print(self.url + 'RestAPI/statistics/' + str(self.siteId) + req_chain + query + '&withCallTags=true&page=1&limit=1000')
 		if req.status_code == 200:
 			response = json.loads(req.text)
 			if type == 'callsByDate':
@@ -177,6 +182,6 @@ class CalltouchApi:
 				result = [{'keyword': k, 'calls': v} for k, v in response.items()]
 			else:
 				result = {'callsTotal': response}
-			return result
+			return response
 		else:
 			return {'status': False, 'message': 'Server Responded With Status Code: ' + str(req.status_code)}

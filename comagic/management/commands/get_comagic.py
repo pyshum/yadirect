@@ -4,19 +4,14 @@ from datetime import datetime, date, timedelta
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.db.models import Q
 from django.utils import timezone
 
-from comagic.models import APIData
-
-# from yadirect_api.models import ApiData
-
-from google_analytics.hello_analytics_v4 import export_response
+from calltouch.models import APIData
 
 
 class Command(BaseCommand):
 
-    help = 'Команда получает данные с API Яндекс.Директ.'
+    help = 'Команда получает данные с Comagic.'
 
     def handle(self, *args, **options):
 
