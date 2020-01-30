@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from calltouch.models import APIData
+from comagic.models import APIData
 
 
 class Command(BaseCommand):
@@ -19,7 +19,7 @@ class Command(BaseCommand):
             # Вычисляем начало текущей недели - week_start. В понедельник началом считается прошлый понедельник.
             current_weekday = date.today().weekday()
             week_start = date.today() - timedelta(
-                days=(current_weekday + 7 if current_weekday == 0 else current_weekday)
+                days=(current_weekday + 14 if current_weekday == 0 else current_weekday + 7)
             )
 
             payload = {
