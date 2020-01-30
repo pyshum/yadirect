@@ -95,7 +95,7 @@ class Command(BaseCommand):
                             APIData.objects.filter(id=obj.id).update(**data_dict)
                             cnt_updated += 1
 
-                            if cnt_updated % 10 == 0:
+                            if cnt_updated % 100 == 0:
                                 print('so far updated: ', cnt_updated)
 
                         else:
@@ -104,7 +104,7 @@ class Command(BaseCommand):
                             APIData.objects.create(**data_dict)
                             cnt_created += 1
 
-                            if cnt_created % 10 == 0:
+                            if cnt_created % 100 == 0:
                                 print('so far created: ', cnt_created)
 
                 print(f'Created: {cnt_created};\n Updated: {cnt_updated};\n Total: {cnt_updated + cnt_created}')
