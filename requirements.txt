@@ -14,3 +14,5 @@ google-api-python-client==1.7.11
 googleads==22.0.0
 oauth2client==4.1.3
 pyopenssl
+google-cloud-bigquery
+gcloud
