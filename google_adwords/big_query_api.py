@@ -23,23 +23,6 @@ def bq_create_dataset(dataset_id):
         print('Dataset {} created.'.format(dataset.dataset_id))
 
 
-def bq_create_table(dataset_id, table_id, api_obj):
-    # Create a table if not existing
-    bigquery_client = bigquery.Client()
-    dataset_ref = bigquery_client.dataset(dataset_id)
-
-    # Prepares a reference to the table
-    table_ref = dataset_ref.table(table_id)
-
-    try:
-        bigquery_client.get_table(table_ref)
-    except NotFound:
-        schema = get_table_schema(api_obj=api_obj)
-        table = bigquery.Table(table_ref, schema=schema)
-        table = bigquery_client.create_table(table)
-        print('table {} created.'.format(table.table_id))
-
-
 def get_table_schema(api_obj):
 
     objects_types = {
@@ -58,9 +41,24 @@ def get_table_schema(api_obj):
     return BQ_TABLE_SCHEMA
 
 
+def bq_create_table(dataset_id, table_id, api_obj):
+    # Create a table if not existing
+    bigquery_client = bigquery.Client(credentials=credentials, project=project_id)
+    # Prepares a reference to the table
+    table_ref = bigquery.Table(f'{project_id}.{dataset_id}.{table_id}')
+    try:
+        table = bigquery_client.get_table(table_ref)
+        print(f'table {table} existed.')
+    except:
+        schema = get_table_schema(api_obj=api_obj)
+        table = bigquery.Table(table_ref, schema=schema)
+        table = bigquery_client.create_table(table)
+        print('table {} created.'.format(table.table_id))
+
+
 def export_items_to_bigquery(dataset_id, table_id, api_model):
     # Instantiates a client
-    bigquery_client = bigquery.Client()
+    bigquery_client = bigquery.Client(credentials=credentials, project=project_id)
 
     # Prepares a reference to the dataset
     dataset_ref = bigquery_client.dataset(dataset_id)
@@ -69,11 +67,13 @@ def export_items_to_bigquery(dataset_id, table_id, api_model):
     table = bigquery_client.get_table(table_ref)  # API call
 
     rows_to_insert = []
+    cnt = 0
 
     for obj in api_model.objects.all():
         rows_to_insert.append(
-            [v for k, v in obj.__dict__.items()]
+            [str(v) for k, v in obj.__dict__.items()]
         )
-
+        cnt += 1
     errors = bigquery_client.insert_rows(table, rows_to_insert)  # API request
     assert errors == []
+    print('cnt', cnt, '\n', 'rows total: ', len(rows_to_insert), '\n', 'errors: ', errors)
