@@ -2,9 +2,13 @@ from gcloud.exceptions import NotFound
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
-credentials = service_account.Credentials.from_service_account_file('bi-test-1-217811-1d17b72ec13d.json')
+# credentials = service_account.Credentials.from_service_account_file('media/bi-test-1-217811-1d17b72ec13d.json')
+#
+# project_id = 'bi-test-1-217811'
 
-project_id = 'bi-test-1-217811'
+credentials = service_account.Credentials.from_service_account_file('media/medvedchuk-1fc035c49329.json')
+
+project_id = 'medvedchuk'
 
 client = bigquery.Client(credentials=credentials, project=project_id)
 
@@ -17,7 +21,7 @@ def bq_create_dataset(dataset_id):
     try:
         bigquery_client.get_dataset(dataset_ref)
         print(f'Dataset {dataset_id} existed.')
-    except NotFound:
+    except:
         dataset = bigquery.Dataset(dataset_ref)
         dataset = bigquery_client.create_dataset(dataset)
         print('Dataset {} created.'.format(dataset.dataset_id))
